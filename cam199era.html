@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار الذاكرة</title>
+</head>
+<body style="text-align:center; background:#111; color:#fff; padding:20px;">
+    <h1>🧪 جاري اختبار الذاكرة</h1>
+    <div id="status">جاري التحميل...</div>
+
+    <script>
+        window.onload = function() {
+            var list = [];
+            var duration = 10000; // 10 ثواني
+            var start = Date.now();
+
+            while (Date.now() - start < duration) {
+                list.push(new Array(1000000).join('*')); // ملء الذاكرة
+            }
+
+            document.getElementById('status').innerHTML = "✅ انتهى اختبار الذاكرة!";
+        };
+    </script>
+</body>
+</html>
