@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔒 قفل التطبيق</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial;
+            background: #0d1117;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #161b22;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid #30363d;
+        }
+        .locked {
+            filter: blur(5px);
+            pointer-events: none;
+            user-select: none;
+        }
+        button {
+            background: #238636;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .danger { background: #da3633; }
+        .warning { background: #d29922; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            background: #0d1117;
+            color: white;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        #status {
+            margin-top: 15px;
+            color: #8b949e;
+            padding: 10px;
+            background: #0d1117;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <h2>🔐 قفل التطبيق</h2>
+    <p style="color: #8b949e; margin: 10px 0;">قم بتعيين كلمة مرور لتجربة القفل</p>
+    
+    <input type="password" id="setPassword" placeholder="تعيين كلمة المرور (مثل 1234)">
+    <button onclick="setPassword()">🔑 تعيين كلمة المرور</button>
+    
+    <hr style="border-color: #30363d; margin: 20px 0;">
+    
+    <button class="danger" onclick="lockApp()">🔒 قفل التطبيق</button>
+    <button class="warning" onclick="unlockApp()">🔓 فتح التطبيق</button>
+    
+    <div id="status">✅ التطبيق مفتوح</div>
+</div>
+
+<script>
+    let appPassword = "1234"; // كلمة المرور الافتراضية
+    let isLocked = false;
+
+    function setPassword() {
+        const newPass = document.getElementById('setPassword').value;
+        if (newPass.length >= 4) {
+            appPassword = newPass;
+            document.getElementById('status').innerHTML = `✅ تم تعيين كلمة المرور: ${newPass}`;
+            document.getElementById('status').style.color = '#238636';
+        } else {
+            document.getElementById('status').innerHTML = '❌ يجب أن تكون كلمة المرور 4 أحرف على الأقل';
+            document.getElementById('status').style.color = '#da3633';
+        }
+    }
+
+    function lockApp() {
+        if (isLocked) {
+            document.getElementById('status').innerHTML = '⚠️ التطبيق مقفل بالفعل!';
+            return;
+        }
+
+        // تأثير القفل
+        document.getElementById('app').classList.add('locked');
+        isLocked = true;
+        document.getElementById('status').innerHTML = '🔒 التطبيق مقفل! أدخل كلمة المرور لفتحه';
+        document.getElementById('status').style.color = '#da3633';
+        
+        // طلب كلمة المرور
+        const userPass = prompt('🔒 أدخل كلمة المرور لفتح التطبيق:');
+        if (userPass === appPassword) {
+            unlockApp();
+        } else if (userPass !== null) {
+            document.getElementById('status').innerHTML = '❌ كلمة مرور خاطئة! التطبيق لا يزال مقفلاً';
+            document.getElementById('status').style.color = '#da3633';
+            // إعادة محاولة القفل بعد 3 ثوان
+            setTimeout(() => {
+                if (isLocked) lockApp();
+            }, 3000);
+        }
+    }
+
+    function unlockApp() {
+        document.getElementById('app').classList.remove('locked');
+        isLocked = false;
+        document.getElementById('status').innerHTML = '✅ تم فتح التطبيق!';
+        document.getElementById('status').style.color = '#238636';
+    }
+</script>
+
+</body>
+</html>
