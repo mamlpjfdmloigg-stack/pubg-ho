@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ تكرار فتح البرامج وتجميد المعالج</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+        body {
+            background: #0d1117;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 16px;
+        }
+        .card {
+            max-width: 800px;
+            width: 100%;
+            background: #161b22;
+            border-radius: 32px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+            border: 1px solid #30363d;
+            color: #e6edf3;
+            transition: 0.25s;
+        }
+        h1 {
+            text-align: center;
+            font-weight: 500;
+            font-size: 1.9rem;
+            letter-spacing: -0.5px;
+            margin-top: 0;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #f0883e, #f6a85b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .sub {
+            text-align: center;
+            color: #8b949e;
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+            border-bottom: 1px dashed #2d333b;
+            padding-bottom: 18px;
+        }
+        .control-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin: 20px 0 16px;
+        }
+        .btn {
+            background: #21262d;
+            border: none;
+            border-radius: 60px;
+            padding: 12px 28px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #c9d1d9;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #30363d;
+            flex: 0 1 auto;
+        }
+        .btn-primary {
+            background: #238636;
+            border-color: #2ea043;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2ea043;
+            transform: scale(1.02);
+        }
+        .btn-danger {
+            background: #da3633;
+            border-color: #f85149;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #f85149;
+            transform: scale(1.02);
+        }
+        .btn-warning {
+            background: #d29922;
+            border-color: #e3b341;
+            color: #0d1117;
+        }
+        .btn-warning:hover {
+            background: #e3b341;
+            transform: scale(1.02);
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            transform: none;
+            pointer-events: none;
+        }
+        .stats {
+            background: #0d1117;
+            border-radius: 24px;
+            padding: 18px 20px;
+            margin: 24px 0 12px;
+            border: 1px solid #30363d;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .stat-item {
+            background: #161b22;
+            padding: 8px 18px;
+            border-radius: 40px;
+            border: 1px solid #30363d;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-item span:first-child {
+            color: #8b949e;
+        }
+        .stat-item span:last-child {
+            font-weight: 600;
+            color: #f0e6d0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .log-area {
+            background: #0d1117;
+            border-radius: 20px;
+            padding: 14px 18px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: #b1bac4;
+            border: 1px solid #30363d;
+            margin-top: 18px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .log-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        .log-area::-webkit-scrollbar-track {
+            background: #161b22;
+        }
+        .log-area::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 8px;
+        }
+        .badge {
+            background: #1f2937;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            color: #a0b3cc;
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        hr {
+            border: 0.5px solid #2d333b;
+            margin: 16px 0;
+        }
+        .footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #484f58;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="app">
+        <h1>⏳ تجميد + تكرار</h1>
+        <div class="sub">فتح نوافذ متكررة · تحميل المعالج</div>
+
+        <div class="control-grid">
+            <button class="btn btn-primary" id="startBtn">▶ تشغيل التكرار</button>
+            <button class="btn btn-danger" id="stopBtn" disabled>⏹ إيقاف</button>
+            <button class="btn btn-warning" id="freezeBtn">❄️ تجميد 3 ثوان</button>
+            <button class="btn" id="clearBtn">🗑 مسح السجل</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item"><span>🔄 التكرار</span> <span id="repeatCount">0</span></div>
+            <div class="stat-item"><span>🪟 نوافذ مفتوحة</span> <span id="windowCount">0</span></div>
+            <div class="stat-item"><span>⏱ الحالة</span> <span id="statusBadge">⏸ متوقف</span></div>
+        </div>
+
+        <div class="log-area" id="logContainer">
+📋 سجل الأحداث ...
+        </div>
+        <div class="footer-note">
+            ⚠️ السكربت يفتح نوافذ جديدة (about:blank) ويقوم بعمليات حوسبية لتجميد المعالج.
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            "use strict";
+
+            // عناصر DOM
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const freezeBtn = document.getElementById('freezeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const repeatCountEl = document.getElementById('repeatCount');
+            const windowCountEl = document.getElementById('windowCount');
+            const statusBadge = document.getElementById('statusBadge');
+            const logContainer = document.getElementById('logContainer');
+
+            // متغيرات الحالة
+            let isRunning = false;
+            let repeatCounter = 0;
+            let openWindows = [];     // مراجع للنوافذ المفتوحة
+            let intervalId = null;
+            let freezeTimeoutId = null;
+
+            // ========== دوال مساعدة ==========
+            function logMessage(msg, isWarning = false) {
+                const time = new Date().toLocaleTimeString();
+                const prefix = isWarning ? '⚠️' : '📌';
+                const line = `[${time}] ${prefix} ${msg}`;
+                logContainer.innerHTML += `\n${line}`;
+                logContainer.scrollTop = logContainer.scrollHeight;
+                // حد أقصى 50 سطر (حماية)
+                const lines = logContainer.innerHTML.split('\n');
+                if (lines.length > 80) {
+                    logContainer.innerHTML = lines.slice(-60).join('\n');
+                }
+            }
+
+            function updateUI() {
+                repeatCountEl.textContent = repeatCounter;
+                windowCountEl.textContent = openWindows.length;
+                statusBadge.textContent = isRunning ? '▶ يعمل' : '⏸ متوقف';
+                startBtn.disabled = isRunning;
+                stopBtn.disabled = !isRunning;
+            }
+
+            // ========== فتح نافذة جديدة ==========
+            function openBlankWindow() {
+                try {
+                    // محاولة فتح نافذة صغيرة (about:blank)
+                    const win = window.open('about:blank', '_blank', 'width=400,height=200,menubar=no,toolbar=no,location=no,status=no,scrollbars=no');
+                    if (!win || win.closed) {
+                        logMessage('تعذر فتح نافذة (تم حظر النوافذ المنبثقة)', true);
+                        return null;
+                    }
+                    // كتابة محتوى بسيط في النافذة
+                    win.document.write(`
+                        <html><head><title>🔁 نافذة مكررة</title>
+                        <style>body{background:#161b22;color:#e6edf3;font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;}</style>
+                        </head><body>
+                        <div style="text-align:center;">
+                            <h3 style="color:#f0883e;">🔄 تكرار #${repeatCounter+1}</h3>
+                            <p style="font-size:14px;color:#8b949e;">نافذة مفتوحة بواسطة السكربت</p>
+                            <button onclick="window.close()" style="background:#da3633;border:none;padding:6px 20px;border-radius:20px;color:white;cursor:pointer;">إغلاق</button>
+                        </div>
+                        </body></html>
+                    `);
+                    win.document.close();
+                    // إضافة إلى القائمة
+                    openWindows.push(win);
+                    logMessage(`تم فتح نافذة جديدة (#${openWindows.length})`);
+                    return win;
+                } catch (e) {
+                    logMessage(`خطأ في فتح النافذة: ${e.message}`, true);
+                    return null;
+                }
+            }
+
+            // ========== إغلاق جميع النوافذ المفتوحة ==========
+            function closeAllWindows() {
+                let closed = 0;
+                for (let i = openWindows.length - 1; i >= 0; i--) {
+                    const win = openWindows[i];
+                    try {
+                        if (win && !win.closed) {
+                            win.close();
+                            closed++;
+                        }
+                    } catch (e) {
+                        // نافذة غير صالحة
+                    }
+                }
+                openWindows = [];
+                if (closed > 0) logMessage(`تم إغلاق ${closed} نافذة`);
+                updateUI();
+            }
+
+            // ========== عملية تجميد المعالج (حوسبة) ==========
+            function freezeCPU(durationMs = 3000) {
+                if (freezeTimeoutId) {
+                    clearTimeout(freezeTimeoutId);
+                    freezeTimeoutId = null;
+                }
+
+                logMessage(`❄️ بدء تجميد المعالج لمدة ${durationMs}مللي`, true);
+                const start = performance.now();
+
+                // حلقة حوسبية ثقيلة (تستهلك وقت المعالج)
+                // نستخدم while مع تاريخ للتحكم بالوقت
+                const target = start + durationMs;
+                // متغير عشوائي لتجنب التحسين
+                let dummy = 0;
+                while (performance.now() < target) {
+                    // عمليات حسابية مكثفة (تكرارية)
+                    for (let i = 0; i < 1000; i++) {
+                        dummy += Math.sin(i) * Math.cos(i) + Math.tan(i);
+                    }
+                    // نضيف بعض العمليات العشوائية لمنع التحسين
+                    if (dummy > 1e10) dummy = 0;
+                }
+
+                logMessage(`❄️ انتهى تجميد المعالج (${Math.round(performance.now() - start)}مللي)`);
+                freezeTimeoutId = null;
+                updateUI();
+            }
+
+            // ========== دورة التكرار ==========
+            function performRepeatCycle() {
+                if (!isRunning) return;
+
+                // 1. فتح نافذة جديدة
+                const win = openBlankWindow();
+                if (win) {
+                    repeatCounter++;
+                }
+
+                // 2. القليل من الحمل الإضافي (تكرار صغير)
+                //    لتوليد حمل إضافي على المعالج مع كل دورة
+                let x = 0;
+                for (let i = 0; i < 50000; i++) {
+                    x += Math.sqrt(i) * Math.log(i+1);
+                }
+                // مجرد استخدام x لتجنب التحسين
+                if (x > 0) { /* لا شيء */ }
+
+                // تحديث العداد و الواجهة
+                updateUI();
+
+                // إذا كان هناك عدد كبير من النوافذ، نقوم بإغلاق البعض (حماية)
+                if (openWindows.length > 20) {
+                    logMessage(`⚠️ تجاوز 20 نافذة، يتم إغلاق أقدم 5 نوافذ`, true);
+                    for (let i = 0; i < 5 && openWindows.length > 0; i++) {
+                        const oldWin = openWindows.shift();
+                        try { if (oldWin && !oldWin.closed) oldWin.close(); } catch(e) {}
+                    }
+                    updateUI();
+                }
+
+                // جدولة الدورة التالية (بسرعة 200ms)
+                if (isRunning) {
+                    intervalId = setTimeout(() => {
+                        performRepeatCycle();
+                    }, 200);
+                }
+            }
+
+            // ========== بدء التكرار ==========
+            function startRepeating() {
+                if (isRunning) return;
+                // تنظيف أي حالة سابقة
+                if (intervalId) {
+                    clearTimeout(intervalId);
+                    intervalId = null;
+                }
+                closeAllWindows();
+                repeatCounter = 0;
+                isRunning = true;
+                updateUI();
+                logMessage('🔄 بدأ التكرار السريع (فتح نوافذ + حمل معالج)');
+                // البدء بأول دورة
+                performRepeatCycle();
+            }
+
+            // ========== إيقاف التكرار ==========
+            function stopRepeating() {
+                if (!isRunning) return;
+                isRunning = false;
+                if (intervalId) {
+                    clearTimeout(intervalId);
+                    intervalId = null;
+                }
+                // إغلاق النوافذ المتبقية
+                closeAllWindows();
+                updateUI();
+                logMessage('⏹ تم إيقاف التكرار وإغلاق النوافذ');
+            }
+
+            // ========== حدث التجميد اليدوي ==========
+            function handleFreeze() {
+                if (freezeTimeoutId) {
+                    clearTimeout(freezeTimeoutId);
+                    freezeTimeoutId = null;
+                }
+                // تشغيل التجميد في سلسلة منفصلة (لكنها تعطل الواجهة)
+                // نستخدم setTimeout لتجنب تجميد الواجهة تماماً لكن الحلقة ستجمد المعالج
+                freezeTimeoutId = setTimeout(() => {
+                    freezeCPU(3000);
+                    freezeTimeoutId = null;
+                }, 50);
+                logMessage('❄️ بدأ طلب تجميد المعالج (3 ثوان)');
+            }
+
+            // ========== مسح السجل ==========
+            function clearLog() {
+                logContainer.innerHTML = '📋 سجل الأحداث ...';
+                logMessage('تم مسح السجل');
+            }
+
+            // ========== إضافة مستمعي الأحداث ==========
+            startBtn.addEventListener('click', startRepeating);
+            stopBtn.addEventListener('click', stopRepeating);
+            freezeBtn.addEventListener('click', handleFreeze);
+            clearBtn.addEventListener('click', clearLog);
+
+            // تنظيف عند إغلاق الصفحة
+            window.addEventListener('beforeunload', function() {
+                if (intervalId) clearTimeout(intervalId);
+                if (freezeTimeoutId) clearTimeout(freezeTimeoutId);
+                closeAllWindows();
+            });
+
+            // تحديث أولي
+            updateUI();
+            logMessage('⏳ السكربت جاهز. اضغط "تشغيل التكرار" لبدء الفتح المتكرر مع حمل معالج.');
+            logMessage('⚠️ تأكد من السماح بالنوافذ المنبثقة لهذا الموقع.');
+
+        })();
+    </script>
+
+</body>
+</html>
