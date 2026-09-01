@@ -1,0 +1,10 @@
+def execute_command(cmd):
+    # اختصار لقفل الشاشة
+    if cmd.lower() == "/lock" or cmd.lower() == "lock":
+        cmd = "termux-lock"  # أو "input keyevent KEYCODE_POWER"
+    try:
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        output = result.stdout + result.stderr
+        return output if output.strip() else "✅ تم قفل الشاشة"
+    except Exception as e:
+        return f"❌ خطأ: {str(e)}"
